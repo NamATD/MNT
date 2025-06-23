@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3999';
+
 export default function Home() {
   const router = useRouter();
   const [form, setForm] = useState<{ username?: string; password?: string }>({});
@@ -11,7 +13,7 @@ export default function Home() {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:3000/auth/login', {
+      const response = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

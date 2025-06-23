@@ -1,7 +1,12 @@
-import { Controller, Post, Req } from '@nestjs/common';
+import { Controller, Inject, Injectable, Post, Req } from '@nestjs/common';
+import { AuthService } from '../services/auth.service'; // Adjust the import path as necessary
 
 @Controller('auth')
 export class AuthController {
+    constructor(
+        private readonly authService: AuthService, // Replace 'any' with the actual type if available
+    ) { }
+
     @Post('/login')
     login(@Req() req) {
         const { username, password } = req.body;
@@ -12,8 +17,8 @@ export class AuthController {
             });
         }
 
+        return this.authService.login(username, password);
 
-        
     }
     @Post('/register')
     register() {

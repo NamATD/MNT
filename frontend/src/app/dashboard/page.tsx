@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3999';
+
 interface Task {
     _id: string;
     title: string;
@@ -37,7 +39,7 @@ export default function Dashboard() {
         // Fetch tasks
         const fetchTasks = async () => {
             try {
-                const response = await fetch('http://localhost:3000/tasks', {
+                const response = await fetch(`${baseUrl}/tasks`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

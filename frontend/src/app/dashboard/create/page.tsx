@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 interface User {
     _id: string;
     username: string;
@@ -61,7 +62,7 @@ export default function CreateTask() {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/tasks', {
+            const response = await fetch(`${baseUrl}/tasks`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
