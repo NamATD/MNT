@@ -30,6 +30,7 @@ export default function Home() {
 
       // Save token to localStorage
       localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/dashboard'); // Redirect to dashboard
     } catch (error) {
       console.error('Login failed:', error);

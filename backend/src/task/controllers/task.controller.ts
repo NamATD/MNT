@@ -6,7 +6,7 @@ import { CreateTaskDto, UpdateTaskDto, UpdateTaskProgressDto } from '../dto/task
 export class TaskController {
     constructor(private readonly taskService: TaskService) { }
 
-    @Post()
+    @Post("/create")
     async create(
         @Body() createTaskDto: CreateTaskDto,
         @Request() req,
@@ -15,8 +15,8 @@ export class TaskController {
     }
 
     @Get()
-    async findAll(@Request() req) {
-        return this.taskService.findAll(req.user._id, req.user.role);
+    async findAll(){
+        return this.taskService.findAll();
     }
 
     @Get(':id')

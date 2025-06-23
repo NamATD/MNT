@@ -39,10 +39,12 @@ export default function Dashboard() {
         // Fetch tasks
         const fetchTasks = async () => {
             try {
+                const user = localStorage.getItem('user');
                 const response = await fetch(`${baseUrl}/tasks`, {
+                    method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
-                    }
+                    },
                 });
 
                 if (!response.ok) {
