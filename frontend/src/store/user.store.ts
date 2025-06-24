@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import axiosClient from "@/utils";
-import { use } from "react";
 
 interface User {
   _id: string;
@@ -21,12 +20,21 @@ interface Project {
 interface UserState {
   user: User | null;
   projects: Project[] | null;
+  getProjects: (userId: string) => Promise<Project[]>;
   login: (username: string, password: string) => Promise<User>;
 }
 
-export const useUserStore = create<UserState>((set) => ({
+export const useUserStore = create<UserState>((set, get) => ({
   user: null,
   projects: null,
+
+  getProjects: async (userId: string): Promise<Project[]> => {
+    const userProjects = await axiosClient.post("/projects", { userId });
+    console.log("user project: ", userProjects);
+    set({ projects: userProjects.data });
+
+    return userProjects.data;
+  },
 
   login: async (username: string, password: string): Promise<User> => {
     try {
@@ -35,9 +43,7 @@ export const useUserStore = create<UserState>((set) => ({
 
       set({ user: userData });
 
-      const userProjects = await axiosClient.post("/projects", { userId: userData._id });
-      console.log("user project: ", userProjects);
-      set({ projects: userProjects.data });
+      get().getProjects(userData._id);
 
       return userData;
     } catch (error) {
