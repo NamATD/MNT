@@ -1,8 +1,12 @@
+"use client";
+
 import { useUserStore } from "@/store/user.store";
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 function Header() {
+  const router = useRouter();
   const { projects } = useUserStore();
 
   return (
@@ -24,7 +28,9 @@ function Header() {
         </div>
       </div>
       <div>
-        <button className="btn btn-primary">Create Project</button>
+        <button className="btn btn-primary" onClick={() => router.push("/project/create")}>
+          Create Project
+        </button>
       </div>
       <div className="avatar">
         <div className="w-16 rounded-full relative">

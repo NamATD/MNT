@@ -1,7 +1,12 @@
+"use client";
+
+import { useUserStore } from "@/store/user.store";
+import axiosClient from "@/utils";
 import React, { useState } from "react";
 
 export default function CreateProjectPage() {
   const [form, setForm] = useState<{ title?: string; description?: string }>({});
+  const { user, getProjects } = useUserStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -11,12 +16,19 @@ export default function CreateProjectPage() {
         alert("Fill all fields!");
         return;
       }
-
-      const res = await login(form.username, form.password);
-      if (!res) {
-        alert("Login failed");
+      if (!user) {
         return;
       }
+      console.log("submit");
+
+      const res = await axiosClient.post("/projects/create", { userId: user._id, title: form.title, description: form.description });
+
+      if (!res) {
+        alert("Created fail");
+        return;
+      }
+      console.log("create response: ", res);
+      getProjects(user._id);
       setForm({ title: "", description: "" });
     } catch (error) {
       console.error("Login failed:", error);
@@ -32,16 +44,16 @@ export default function CreateProjectPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h1 className="text-2xl font-bold mb-6 text-center text-black">Login</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-black">Create Project</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="username">
+            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="title">
               Title
             </label>
             <input
               type="text"
-              id="username"
-              name="username"
+              id="title"
+              name="title"
               value={form.title || ""}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
