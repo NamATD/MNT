@@ -14,7 +14,7 @@ import { CreateProjectDto, UpdateProjectDto } from '../dto/project.dto';
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
-  @Post()
+  @Post('create')
   async createProject(@Body() createProjectDto: CreateProjectDto) {
     return this.projectService.createProject(createProjectDto);
   }
@@ -24,7 +24,7 @@ export class ProjectController {
     return this.projectService.getProject(projectId);
   }
 
-  @Get()
+  @Post()
   async getProjects(@Body() body: { userId: string }) {
     return await this.projectService.getProjectsByUser(body.userId);
   }

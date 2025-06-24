@@ -58,10 +58,6 @@ export class ProjectService {
         members: userId,
       });
 
-      if (!projects || projects.length === 0) {
-        throw new NotFoundException('No projects found for this user');
-      }
-
       return projects;
     } catch (error) {
       console.error('[PROJECT] error:', error);
