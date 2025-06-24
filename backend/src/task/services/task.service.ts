@@ -40,10 +40,6 @@ export class TaskService {
     try {
       const tasks = await this.taskModel.find({ projectId });
 
-      if (!tasks || tasks.length === 0) {
-        throw new NotFoundException('No tasks found for this project');
-      }
-
       return tasks;
     } catch (error) {
       console.error(`[TaskService] Find all tasks error:`, error);

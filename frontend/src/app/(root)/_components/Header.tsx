@@ -9,16 +9,25 @@ function Header() {
   const router = useRouter();
   const { projects } = useUserStore();
 
+  const GoToProject = (id: string) => {
+    router.push(`/project/${id}`);
+  };
   return (
-    <div className="flex justify-end items-center gap-10">
+    <div className="flex justify-end items-center gap-10 ">
       <div>
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn btn-secondary m-1">
             Your Projects ⬇️
           </div>
-          <ul tabIndex={0} className="dropdown-content menu bg-blue-400 rounded-box z-1 w-52 p-2 shadow-sm">
+          <ul tabIndex={0} className="dropdown-content menu bg-black z-1 w-52 p-2 shadow-sm gap-2">
             {(projects ?? []).length > 0 ? (
-              (projects ?? []).map((project) => <li key={project._id}>{project.title}</li>)
+              (projects ?? []).map((project) => (
+                <li key={project._id}>
+                  <button className="btn btn-soft btn-accent w-full" onClick={() => GoToProject(project._id)}>
+                    {project.title}
+                  </button>
+                </li>
+              ))
             ) : (
               <>
                 <h2 className="text-black">No project</h2>
