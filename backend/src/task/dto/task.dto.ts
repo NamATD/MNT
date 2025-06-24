@@ -1,49 +1,52 @@
-import { IsString, IsOptional, IsNumber, Min, Max, IsMongoId } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  Min,
+  Max,
+  IsMongoId,
+} from 'class-validator';
 
 export class CreateTaskDto {
-    @IsString()
-    title: string;
+  @IsString()
+  title: string;
 
-    @IsString()
-    description: string;
+  @IsString()
+  description: string;
 
-    @IsMongoId()
-    assignedTo: string;
+  @IsMongoId()
+  assignedTo: string;
 
-    @IsOptional()
-    @IsString()
-    projectId?: string;
-
-    @IsOptional()
-    @IsString()
-    file?: string;
+  @IsOptional()
+  @IsString()
+  projectId?: string;
 }
 
 export class UpdateTaskDto {
-    @IsOptional()
-    @IsString()
-    title?: string;
+  @IsOptional()
+  @IsString()
+  title?: string;
 
-    @IsOptional()
-    @IsString()
-    description?: string;
+  @IsOptional()
+  @IsString()
+  description?: string;
 
-    @IsOptional()
-    @IsMongoId()
-    assignedTo?: string;
+  @IsOptional()
+  @IsMongoId()
+  assignedTo?: string;
 
-    @IsOptional()
-    @IsString()
-    projectId?: string;
+  @IsOptional()
+  @IsString()
+  projectId?: string;
 
-    @IsOptional()
-    @IsString()
-    file?: string;
+  @IsOptional()
+  @IsString()
+  file?: string;
 }
 
 export class UpdateTaskProgressDto {
-    @IsNumber()
-    @Min(0)
-    @Max(100)
-    progress: number;
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  progress: number;
 }
