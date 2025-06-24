@@ -9,6 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Project, ProjectDocument } from '../schemas/project.schema';
 import { Model } from 'mongoose';
 import { UserService } from 'src/user/services/user.service';
+import { ChatGateway } from '../../gateways/chat.gateway';
 
 @Injectable()
 export class ProjectService {
@@ -16,8 +17,9 @@ export class ProjectService {
     @InjectModel(Project.name)
     private readonly projectModel: Model<ProjectDocument>,
     private readonly userService: UserService,
+    private readonly chatGateway: ChatGateway,
   ) {}
-  async createProject(createProjectDto: CreateProjectDto) {
+ async createProject(createProjectDto: CreateProjectDto) {
     try {
       const createdProject = new this.projectModel({
         ...createProjectDto,
@@ -27,13 +29,21 @@ export class ProjectService {
         createdBy: createProjectDto.userId,
       });
 
-      return await createdProject.save();
+      const savedProject = await createdProject.save();
+
+      // Tự động thêm members vào room WebSocket
+      savedProject.members.forEach((userId) => {
+        this.chatGateway.server.to(`user_${userId}`).emit('joinProject', {
+          projectId: savedProject._id.toString(),
+        });
+      });
+
+      return savedProject;
     } catch (error) {
       console.log('[PROJECT] error: ', error);
       throw new InternalServerErrorException('Failed to create project');
     }
   }
-
   async getProject(projectId: string): Promise<Project> {
     try {
       const project = await this.projectModel.findById(projectId).lean();
@@ -72,10 +82,9 @@ export class ProjectService {
         throw new NotFoundException('Project not found');
       }
       if (updateProjectDto.userId !== project.createdBy.toString()) {
-        throw new ForbiddenException(
-          'You are not allowed to update this project',
-        );
+        throw new ForbiddenException('You are not allowed to update this project');
       }
+
       const updatedProject = await this.projectModel.findByIdAndUpdate(
         projectId,
         {
@@ -84,11 +93,21 @@ export class ProjectService {
           members: updateProjectDto.member,
           updatedAt: Date.now(),
         },
-        {
-          new: true,
-          runValidators: true,
-        },
+        { new: true, runValidators: true },
       );
+
+      // Cập nhật members trong room WebSocket
+      const oldMembers = project.members.map((id) => id.toString());
+      const newMembers = updateProjectDto.member;
+      const membersToAdd = newMembers.filter((id) => !oldMembers.includes(id));
+      const membersToRemove = oldMembers.filter((id) => !newMembers.includes(id));
+
+      membersToAdd.forEach((userId) => {
+        this.chatGateway.server.to(`user_${userId}`).emit('joinProject', { projectId });
+      });
+      membersToRemove.forEach((userId) => {
+        this.chatGateway.server.to(`user_${userId}`).emit('leaveProject', { projectId });
+      });
 
       return updatedProject;
     } catch (error) {

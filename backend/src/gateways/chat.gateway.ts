@@ -1,57 +1,26 @@
-import {
-  WebSocketGateway,
-  WebSocketServer,
-  SubscribeMessage,
-  OnGatewayInit,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-  MessageBody,
-  ConnectedSocket,
-} from '@nestjs/websockets';
+import { WebSocketGateway, SubscribeMessage, WebSocketServer, ConnectedSocket, MessageBody } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway({
-  cors: {
-    origin: '*',
-  },
-})
-export class ChatGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+@WebSocketGateway()
+export class ChatGateway {
   @WebSocketServer()
   server: Server;
 
-  afterInit(server: Server) {
-    console.log('WebSocket server initialized');
-  }
-
-  handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
-  }
-
-  handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
+  @SubscribeMessage('joinRoom')
+  handleJoinRoom(@ConnectedSocket() client: Socket, @MessageBody() data: { userId: string; projectId: string }): void {
+    client.join(`project_${data.projectId}`);
+    client.to(`project_${data.projectId}`).emit('userJoined', { userId: data.userId });
+    console.log('Client joinRoom:', data);
   }
 
   @SubscribeMessage('sendMessage')
-  handleSendMessage(
-    @MessageBody() payload: { message: string; room: string },
-    @ConnectedSocket() client: Socket,
-  ) {
-    console.log('Message received:', payload);
-    this.server.to(payload.room).emit('receiveMessage', {
-      message: payload.message,
-      sender: client.id,
+  handleMessage(@MessageBody() data: { projectId: string; userId: string; message: string }): void {
+    console.log('New message:', data);
+    this.server.to(`project_${data.projectId}`).emit('newMessage', {
+      userId: data.userId,
+      message: data.message,
+      timestamp: new Date(),
+      
     });
-  }
-
-  @SubscribeMessage('joinRoom')
-  handleJoinRoom(
-    @MessageBody() room: string,
-    @ConnectedSocket() client: Socket,
-  ) {
-    client.join(room);
-    client.emit('joinedRoom', room);
-    console.log(`Client ${client.id} joined room: ${room}`);
   }
 }
