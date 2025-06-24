@@ -7,58 +7,40 @@ import {
   Delete,
   Request,
   Put,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { TaskService } from '../services/task.service';
-import {
-  CreateTaskDto,
-  UpdateTaskDto,
-  UpdateTaskProgressDto,
-} from '../dto/task.dto';
+import { CreateTaskDto, UpdateTaskDto } from '../dto/task.dto';
 
 @Controller('tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
-  @Post('/create')
-  async create(@Body() createTaskDto: CreateTaskDto) {
-    return this.taskService.create(createTaskDto, createTaskDto.title);
-  }
-
-  @Get()
-  async findAll() {
-    return this.taskService.findAll();
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async createTask(@Body() createTaskDto: CreateTaskDto) {
+    return this.taskService.createTask(createTaskDto);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @Request() req) {
-    return this.taskService.findOne(id, req.user._id, req.user.role);
+  async findOne(@Param('id') id: string) {
+    return this.taskService.findOne(id);
   }
 
   @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateTaskDto: UpdateTaskDto,
-    @Request() req,
-  ) {
-    return this.taskService.update(
-      id,
-      updateTaskDto,
-      req.user._id,
-      req.user.role,
-    );
-  }
-
-  @Put(':id/progress')
-  async updateProgress(
-    @Param('id') id: string,
-    @Body() updateProgressDto: UpdateTaskProgressDto,
-    @Request() req,
-  ) {
-    return this.taskService.updateProgress(id, updateProgressDto, req.user._id);
+  async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
+    return this.taskService.update(id, updateTaskDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string, @Request() req) {
-    return this.taskService.remove(id, req.user._id, req.user.role);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id') id: string) {
+    return this.taskService.remove(id);
+  }
+
+  @Get('project/:projectId')
+  async findByProject(@Param('projectId') projectId: string) {
+    return this.taskService.findByProject(projectId);
   }
 }

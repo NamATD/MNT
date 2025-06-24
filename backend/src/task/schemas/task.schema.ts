@@ -11,17 +11,23 @@ export class Task {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  assignedTo: string[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
+  assignedTo: Types.ObjectId[];
 
-  @Prop({ type: String, required: false })
-  projectId?: string;
+  @Prop({ type: Types.ObjectId, ref: 'Project', required: true })
+  projectId: Types.ObjectId;
 
-  @Prop({ type: Number, default: 0, min: 0, max: 100 })
+  @Prop({ type: String, enum: ['active', 'cancel', 'done'], default: 'active' })
+  status: string;
+
+  @Prop({ type: Number, min: 0, max: 100, default: 0 })
   progress: number;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  createdBy: string;
+  @Prop({ type: Date, required: false })
+  dueDate: Date;
+
+  @Prop({ type: [String], default: [] })
+  tags: string[];
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

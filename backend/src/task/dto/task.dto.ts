@@ -1,52 +1,63 @@
 import {
   IsString,
+  IsNotEmpty,
   IsOptional,
-  IsNumber,
-  Min,
-  Max,
   IsMongoId,
+  IsArray,
+  IsDate,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateTaskDto {
   @IsString()
+  @IsNotEmpty()
   title: string;
 
   @IsString()
+  @IsNotEmpty()
   description: string;
 
+  @IsMongoId({ each: true })
+  @IsArray()
+  @IsOptional()
+  assignedTo?: string[];
+
   @IsMongoId()
-  assignedTo: string;
+  @IsNotEmpty()
+  projectId: string;
 
   @IsOptional()
-  @IsString()
-  projectId?: string;
+  @Type(() => Date)
+  @IsDate()
+  dueDate?: Date;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
 }
 
 export class UpdateTaskDto {
-  @IsOptional()
   @IsString()
+  @IsOptional()
   title?: string;
 
-  @IsOptional()
   @IsString()
+  @IsOptional()
   description?: string;
 
+  @IsMongoId({ each: true })
+  @IsArray()
   @IsOptional()
-  @IsMongoId()
-  assignedTo?: string;
+  assignedTo?: string[];
 
   @IsOptional()
-  @IsString()
-  projectId?: string;
+  @Type(() => Date)
+  @IsDate()
+  dueDate?: Date;
 
   @IsOptional()
-  @IsString()
-  file?: string;
-}
-
-export class UpdateTaskProgressDto {
-  @IsNumber()
-  @Min(0)
-  @Max(100)
-  progress: number;
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
 }
