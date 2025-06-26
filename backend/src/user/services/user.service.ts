@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import {
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -19,7 +20,7 @@ export class UserService {
   async create(username: string, password: string): Promise<UserDocument> {
     try {
       // Check if user exists
-      const existingUser = await this.userModel.findOne({ username });
+      const existingUser = await this.userModel.findOne({ username }).exec();
 
       // If user already exists, check password
       if (existingUser) {
@@ -51,22 +52,33 @@ export class UserService {
       console.log(`Created new user: ${username}`);
       return newUser;
     } catch (error) {
-      // Better error handling with specific error types
-      if (error instanceof UnauthorizedException) {
-        throw error;
-      }
-
       console.error('[USER] error:', error);
       throw new InternalServerErrorException('Failed to create user');
     }
   }
 
-  async findById(userId: string) {
-    return await this.userModel.findById(userId);
+  async findById(userId: string): Promise<UserDocument> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return user;
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userModel.find();
+  async findAll(): Promise<UserDocument[]> {
+    const users = await this.userModel.find().exec();
+    if (!users) {
+      throw new NotFoundException();
+    }
+    return users;
+  }
+
+  async findByName(username: string): Promise<UserDocument> {
+    const user = await this.userModel.findOne({ username }).lean().exec();
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return user;
   }
 
   async findByGoogleId(googleId: string): Promise<UserDocument | null> {

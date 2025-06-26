@@ -1,17 +1,20 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { UserService } from '../services/user.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('user')
+@UseGuards(AuthGuard('jwt'))
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
+  @Get('/getAll')
   async findAll() {
     return await this.userService.findAll();
   }
 
-  @Post('/login')
-  async login(@Body() body: { username: string; password: string }) {
-    return await this.userService.create(body.username, body.password);
+  @Get()
+  async getOne(@Query('name') name: string) {
+    console.log((await this.userService.findByName(name))._id);
+    return await this.userService.findByName(name);
   }
 }
