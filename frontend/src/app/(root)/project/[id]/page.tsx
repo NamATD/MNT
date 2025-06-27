@@ -1,5 +1,5 @@
 "use client";
-    
+
 import React, { useEffect } from "react";
 import TaskList from "../_components/TaskList";
 import { useTaskStore } from "@/store/task.store";

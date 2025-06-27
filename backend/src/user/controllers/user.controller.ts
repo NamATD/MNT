@@ -1,6 +1,14 @@
-import { Body, Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  UseGuards,
+  Request,
+  Response,
+} from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { AuthGuard } from '@nestjs/passport';
+import { Auth, JwtPayload } from 'src/auth/decorators/auth.decorator';
 
 @Controller('user')
 @UseGuards(AuthGuard('jwt'))
@@ -10,6 +18,11 @@ export class UserController {
   @Get('/getAll')
   async findAll() {
     return await this.userService.findAll();
+  }
+
+  @Get('/me')
+  async getMe(@Auth() auth: JwtPayload) {
+    return this.userService.getMe(auth._id);
   }
 
   @Get()

@@ -3,6 +3,7 @@
 import { useUserStore } from "@/store/user.store";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function Home() {
   const router = useRouter();
@@ -14,19 +15,19 @@ export default function Home() {
 
     try {
       if (!form.username || !form.password) {
-        alert("Fill all fields!");
+        toast.error("Fill all fields!");
         return;
       }
 
       const res = await login(form.username, form.password);
       if (!res) {
-        alert("Login failed");
+        toast.error("Login failed");
         return;
       }
       router.push("/");
     } catch (error) {
       console.error("Login failed:", error);
-      alert("Login failed. Please check your credentials.");
+      toast.error("Internal Server Error!");
     }
   };
 

@@ -1,7 +1,13 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
-import { Response } from 'express';
+import {
+  Body,
+  Controller,
+  InternalServerErrorException,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -15,10 +21,8 @@ export class AuthController {
     @Body() body: { username: string; password: string },
     @Res() res: Response,
   ) {
-    const frontend_url = this.configService.get<string>('FRONTEND_URL') || '/';
     try {
       const token = await this.authService.login(body.username, body.password);
-      console.log(token);
       res.cookie('access_token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -26,10 +30,9 @@ export class AuthController {
         maxAge: 1 * 24 * 60 * 60 * 1000,
       });
 
-      res.redirect(frontend_url);
-      console.log('user login');
+      return res.status(200).send('Login success');
     } catch {
-      res.redirect(`${frontend_url}/login/error`);
+      throw new InternalServerErrorException();
     }
   }
 }
