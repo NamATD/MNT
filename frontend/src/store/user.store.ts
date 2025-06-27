@@ -6,51 +6,39 @@ interface User {
   username: string;
   role: string;
 }
-
-interface Project {
-  _id: string;
-  title: string;
-  description: string;
-  members: string[];
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 interface UserState {
   user: User | null;
-  projects: Project[] | null;
-  fetchUser: () => Promise<void>;
-  getProjects: (userId: string) => Promise<Project[]>;
-  login: (username: string, password: string) => Promise<void>;
+  isLoading: boolean;
+  isError: boolean;
+  fetchUser: () => Promise<User>;
+  login: (username: string, password: string) => Promise<User | null>;
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
   user: null,
-  projects: null,
+  isLoading: false,
+  isError: false,
 
-  fetchUser: async () => {
+  fetchUser: async (): Promise<User> => {
     const response = await axiosClient.get("/user/me");
     const userData = response.data;
 
     set({ user: userData });
+    return userData;
   },
 
-  getProjects: async (userId: string): Promise<Project[]> => {
-    const userProjects = await axiosClient.post("/projects", { userId });
-    console.log("user project: ", userProjects);
-    set({ projects: userProjects.data });
-
-    return userProjects.data;
-  },
-
-  login: async (username: string, password: string): Promise<void> => {
+  login: async (username: string, password: string): Promise<User | null> => {
     try {
+      set({ isLoading: true, isError: false });
       await axiosClient.post("/auth/login", { username, password });
-      await get().fetchUser();
+
+      return await get().fetchUser();
     } catch (error) {
       console.error("Login failed:", error);
+      set({ isError: true });
       throw error;
+    } finally {
+      set({ isLoading: false });
     }
   },
 }));

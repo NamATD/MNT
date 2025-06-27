@@ -11,13 +11,18 @@ export default function MainLayout({
   children: React.ReactNode;
 }>) {
   const router = useRouter();
-  const user = useUserStore((state) => state.user);
+  const { fetchUser } = useUserStore();
 
   useEffect(() => {
-    if (!user) {
-      router.push("/login");
+    async function checkUser() {
+      const user = await fetchUser();
+      if (!user) {
+        router.push("/login");
+      }
     }
-  }, [user, router]);
+    checkUser();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>

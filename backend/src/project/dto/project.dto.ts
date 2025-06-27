@@ -1,9 +1,6 @@
 import { IsArray, IsMongoId, IsString } from 'class-validator';
 
 export class CreateProjectDto {
-  @IsMongoId()
-  userId: string;
-
   @IsString()
   title: string;
 

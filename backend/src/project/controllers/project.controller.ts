@@ -19,8 +19,11 @@ export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
   @Post('create')
-  async createProject(@Body() createProjectDto: CreateProjectDto) {
-    return this.projectService.createProject(createProjectDto);
+  async createProject(
+    @Body() createProjectDto: CreateProjectDto,
+    @Auth() auth: JwtPayload,
+  ) {
+    return this.projectService.createProject(auth._id, createProjectDto);
   }
 
   @Get(':id')
@@ -28,7 +31,7 @@ export class ProjectController {
     return this.projectService.getProject(projectId);
   }
 
-  @Post()
+  @Get()
   async getProjects(@Auth() auth: JwtPayload) {
     return await this.projectService.getProjectsByUser(auth._id);
   }

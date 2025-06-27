@@ -1,38 +1,35 @@
 "use client";
 
-import { useUserStore } from "@/store/user.store";
-import axiosClient from "@/utils";
+import { useProjectStore } from "@/store/project.store";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function CreateProjectPage() {
   const [form, setForm] = useState<{ title?: string; description?: string }>({});
-  const { user, getProjects } = useUserStore();
+  const { isLoading, isError, createProject, fetchProjects } = useProjectStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       if (!form.title || !form.description) {
-        alert("Fill all fields!");
+        toast.error("Fill all fields!");
         return;
       }
-      if (!user) {
-        return;
-      }
-      console.log("submit");
 
-      const res = await axiosClient.post("/projects/create", { userId: user._id, title: form.title, description: form.description });
+      const res = createProject(form.title, form.description);
 
       if (!res) {
-        alert("Created fail");
+        toast.error("Failed to create project");
         return;
       }
-      console.log("create response: ", res);
-      getProjects(user._id);
+
+      toast.success("Created a project");
+      fetchProjects();
       setForm({ title: "", description: "" });
     } catch (error) {
       console.error("Login failed:", error);
-      alert("Login failed. Please check your credentials.");
+      toast.error("Login failed. Please check your credentials.");
     }
   };
 
@@ -41,7 +38,9 @@ export default function CreateProjectPage() {
     setForm({ ...form, [name]: value });
   };
 
-  return (
+  return isLoading ? (
+    <span className="loading loading-spinner loading-xl" />
+  ) : (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
         <h1 className="text-2xl font-bold mb-6 text-center text-black">Create Project</h1>
@@ -78,6 +77,11 @@ export default function CreateProjectPage() {
           </button>
         </form>
       </div>
+      {isError && (
+        <div role="alert" className="alert alert-error alert-soft">
+          <span>Failed to create project.</span>
+        </div>
+      )}
     </div>
   );
 }

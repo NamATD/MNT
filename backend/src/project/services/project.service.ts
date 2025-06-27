@@ -9,27 +9,29 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Project, ProjectDocument } from '../schemas/project.schema';
 import { Model } from 'mongoose';
 import { UserService } from 'src/user/services/user.service';
+import { AppLogger } from 'src/common/logger.service';
 
 @Injectable()
 export class ProjectService {
+  private readonly logger = new AppLogger(ProjectService.name);
   constructor(
     @InjectModel(Project.name)
     private readonly projectModel: Model<ProjectDocument>,
     private readonly userService: UserService,
   ) {}
-  async createProject(createProjectDto: CreateProjectDto) {
+  async createProject(userId: string, createProjectDto: CreateProjectDto) {
     try {
       const createdProject = new this.projectModel({
         ...createProjectDto,
-        members: [createProjectDto.userId],
+        members: [userId],
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        createdBy: createProjectDto.userId,
+        createdBy: userId,
       });
 
       return await createdProject.save();
     } catch (error) {
-      console.log('[PROJECT] error: ', error);
+      this.logger.logError(error);
       throw new InternalServerErrorException('Failed to create project');
     }
   }
