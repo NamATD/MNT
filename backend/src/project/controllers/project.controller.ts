@@ -11,6 +11,7 @@ import {
 import { ProjectService } from '../services/project.service';
 import { CreateProjectDto, UpdateProjectDto } from '../dto/project.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { Auth, JwtPayload } from 'src/auth/decorators/auth.decorator';
 
 @Controller('projects')
 @UseGuards(AuthGuard('jwt'))
@@ -28,8 +29,8 @@ export class ProjectController {
   }
 
   @Post()
-  async getProjects(@Body() body: { userId: string }) {
-    return await this.projectService.getProjectsByUser(body.userId);
+  async getProjects(@Auth() auth: JwtPayload) {
+    return await this.projectService.getProjectsByUser(auth._id);
   }
 
   @Put(':id')
@@ -43,8 +44,8 @@ export class ProjectController {
   @Delete(':id')
   async deleteProject(
     @Param('id') projectId: string,
-    @Body() body: { userId: string },
+    @Auth() auth: JwtPayload,
   ) {
-    return this.projectService.deleteProject(projectId, body.userId);
+    return this.projectService.deleteProject(projectId, auth._id);
   }
 }
