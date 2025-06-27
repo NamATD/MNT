@@ -5,6 +5,7 @@ import { ProjectModule } from './project/project.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
     ProjectModule,
     UserModule,
     AuthModule,
+    ChatModule,
   ],
   controllers: [],
   providers: [],
